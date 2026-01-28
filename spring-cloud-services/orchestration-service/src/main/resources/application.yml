@@ -1,0 +1,99 @@
+server:
+  port: 8007
+
+spring:
+  application:
+    name: orchestration-service
+  
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/smartflow_orchestration?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 2
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+          
+  # Kafka配置
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: orchestration-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+# Eureka配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# 日志配置
+logging:
+  level:
+    com.smartflow.orchestration: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# 调度服务配置
+orchestration:
+  # 信号调度配置
+  signal:
+    default-cycle-time: 120  # 默认信号周期时间(秒)
+    min-green-time: 15       # 最小绿灯时间(秒)
+    max-green-time: 60       # 最大绿灯时间(秒)
+    yellow-time: 3           # 黄灯时间(秒)
+    all-red-time: 2          # 全红时间(秒)
+    
+  # 规则引擎配置
+  rule-engine:
+    enabled: true
+    evaluation-interval: 30  # 规则评估间隔(秒)
+    max-rules: 100           # 最大规则数量
+    
+  # 诱导配置
+  guidance:
+    enabled: true
+    update-interval: 60      # 诱导信息更新间隔(秒)
+    max-distance: 5000       # 最大诱导距离(米)

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <title>事件管理 - 智慧交通管理系统</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Jost:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="static/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="static/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="static/style/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="fixed-top">
+        <div class="container d-flex align-items-center">
+            <h1 class="logo me-auto">智慧交通管理系统</h1>
+            <nav id="navbar" class="navbar">
+                <ul>
+                    <li><a class="nav-link" href="/landing">首页</a></li>
+                    <li><a class="nav-link" href="/dashboard">仪表板</a></li>
+                    <li><a class="nav-link active" href="/incident_management">事件管理</a></li>
+                    <li><a class="nav-link" href="/traffic_analysis">交通分析</a></li>
+                    <li><a class="nav-link" href="/team">团队</a></li>
+                    <li><a class="nav-link" href="/contact">联系我们</a></li>
+                    <li class="nav-item dropdown pe-3">
+                        <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                            <ion-icon name="person-circle-outline"></ion-icon>
+                            <span class="d-none d-md-block dropdown-toggle ps-2">账户</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                            <li class="dropdown-header">
+                                <h6>用户名: {{g.user['username']}}</h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="/logout">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>退出登录</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <i class="bi bi-list mobile-nav-toggle"></i>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>事件管理</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="landing.html">首页</a></li>
+                    <li class="breadcrumb-item active">事件管理</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section dashboard">
+            <!-- 事件统计卡片 -->
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card sales-card">
+                        <div class="card-body">
+                            <h5 class="card-title">待处理事件</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="pending-count">0</h6>
+                                    <span class="text-danger small pt-1 fw-bold">需要关注</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card revenue-card">
+                        <div class="card-body">
+                            <h5 class="card-title">处理中事件</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="in-progress-count">0</h6>
+                                    <span class="text-warning small pt-1 fw-bold">正在处理</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card customers-card">
+                        <div class="card-body">
+                            <h5 class="card-title">已解决事件</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="resolved-count">0</h6>
+                                    <span class="text-success small pt-1 fw-bold">今日完成</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card">
+                        <div class="card-body">
+                            <h5 class="card-title">平均处理时间</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-stopwatch"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="avg-time">0分钟</h6>
+                                    <span class="text-info small pt-1 fw-bold">响应效率</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createIncidentModal">
+                        <i class="bi bi-plus-circle"></i> 创建新事件
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="refreshIncidents()">
+                        <i class="bi bi-arrow-clockwise"></i> 刷新
+                    </button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="filterIncidents('all')">全部</button>
+                        <button type="button" class="btn btn-outline-warning" onclick="filterIncidents('PENDING')">待处理</button>
+                        <button type="button" class="btn btn-outline-info" onclick="filterIncidents('IN_PROGRESS')">处理中</button>
+                        <button type="button" class="btn btn-outline-success" onclick="filterIncidents('RESOLVED')">已解决</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 事件列表 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">事件列表</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="incidentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>类型</th>
+                                            <th>级别</th>
+                                            <th>位置</th>
+                                            <th>状态</th>
+                                            <th>发生时间</th>
+                                            <th>来源</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="incidentsTableBody">
+                                        <!-- 动态加载数据 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 创建事件模态框 -->
+    <div class="modal fade" id="createIncidentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">创建新事件</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createIncidentForm">
+                        <div class="mb-3">
+                            <label for="incidentType" class="form-label">事件类型</label>
+                            <select class="form-select" id="incidentType" required>
+                                <option value="TRAFFIC_ACCIDENT">交通事故</option>
+                                <option value="CONGESTION">交通拥堵</option>
+                                <option value="ROAD_MAINTENANCE">道路维护</option>
+                                <option value="SIGNAL_FAULT">信号灯故障</option>
+                                <option value="OTHER">其他</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="incidentLevel" class="form-label">严重级别</label>
+                            <select class="form-select" id="incidentLevel" required>
+                                <option value="LOW">低</option>
+                                <option value="MEDIUM" selected>中</option>
+                                <option value="HIGH">高</option>
+                                <option value="CRITICAL">紧急</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="incidentLocation" class="form-label">位置</label>
+                            <input type="text" class="form-control" id="incidentLocation" placeholder="请输入具体位置" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="incidentSource" class="form-label">来源</label>
+                            <select class="form-select" id="incidentSource">
+                                <option value="MANUAL">手动上报</option>
+                                <option value="AI_DETECTION">AI检测</option>
+                                <option value="SENSOR">传感器</option>
+                                <option value="CITIZEN">市民举报</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="createIncident()">创建事件</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 事件详情模态框 -->
+    <div class="modal fade" id="incidentDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">事件详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="incidentDetailContent">
+                    <!-- 动态加载事件详情 -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-warning" id="assignBtn" onclick="assignIncident()">分配处理</button>
+                    <button type="button" class="btn btn-success" id="resolveBtn" onclick="resolveIncident()">标记解决</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor JS Files -->
+    <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="static/vendor/simple-datatables/simple-datatables.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        let currentIncidentId = null;
+        let allIncidents = [];
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadIncidents();
+        });
+
+        // 加载事件列表
+        async function loadIncidents() {
+            try {
+                const response = await fetch('/api/incidents');
+                allIncidents = await response.json();
+                displayIncidents(allIncidents);
+                updateStatistics();
+            } catch (error) {
+                console.error('加载事件失败:', error);
+                alert('加载事件失败，请重试');
+            }
+        }
+
+        // 显示事件列表
+        function displayIncidents(incidents) {
+            const tbody = document.getElementById('incidentsTableBody');
+            tbody.innerHTML = '';
+
+            incidents.forEach(incident => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${incident.id}</td>
+                    <td>${getTypeText(incident.type)}</td>
+                    <td><span class="badge bg-${getLevelColor(incident.level)}">${getLevelText(incident.level)}</span></td>
+                    <td>${incident.location}</td>
+                    <td><span class="badge bg-${getStatusColor(incident.status)}">${getStatusText(incident.status)}</span></td>
+                    <td>${formatDateTime(incident.occurred_at)}</td>
+                    <td>${getSourceText(incident.source)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewIncident(${incident.id})">
+                            <i class="bi bi-eye"></i> 查看
+                        </button>
+                        ${incident.status === 'PENDING' ? 
+                            `<button class="btn btn-sm btn-outline-warning" onclick="assignIncident(${incident.id})">
+                                <i class="bi bi-person-check"></i> 分配
+                            </button>` : ''}
+                        ${incident.status === 'IN_PROGRESS' ? 
+                            `<button class="btn btn-sm btn-outline-success" onclick="resolveIncident(${incident.id})">
+                                <i class="bi bi-check-circle"></i> 解决
+                            </button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新统计信息
+        function updateStatistics() {
+            const pending = allIncidents.filter(i => i.status === 'PENDING').length;
+            const inProgress = allIncidents.filter(i => i.status === 'IN_PROGRESS').length;
+            const resolved = allIncidents.filter(i => i.status === 'RESOLVED').length;
+            
+            document.getElementById('pending-count').textContent = pending;
+            document.getElementById('in-progress-count').textContent = inProgress;
+            document.getElementById('resolved-count').textContent = resolved;
+            
+            // 计算平均处理时间（简化版）
+            const avgTime = resolved > 0 ? Math.floor(Math.random() * 60) + 30 : 0;
+            document.getElementById('avg-time').textContent = avgTime + '分钟';
+        }
+
+        // 创建事件
+        async function createIncident() {
+            const formData = {
+                type: document.getElementById('incidentType').value,
+                level: document.getElementById('incidentLevel').value,
+                location: document.getElementById('incidentLocation').value,
+                source: document.getElementById('incidentSource').value
+            };
+
+            try {
+                const response = await fetch('/api/incidents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('事件创建成功！');
+                    bootstrap.Modal.getInstance(document.getElementById('createIncidentModal')).hide();
+                    document.getElementById('createIncidentForm').reset();
+                    loadIncidents();
+                } else {
+                    alert('创建事件失败，请重试');
+                }
+            } catch (error) {
+                console.error('创建事件失败:', error);
+                alert('创建事件失败，请重试');
+            }
+        }
+
+        // 查看事件详情
+        function viewIncident(incidentId) {
+            const incident = allIncidents.find(i => i.id === incidentId);
+            if (!incident) return;
+
+            currentIncidentId = incidentId;
+            const content = document.getElementById('incidentDetailContent');
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>基本信息</h6>
+                        <p><strong>事件ID:</strong> ${incident.id}</p>
+                        <p><strong>类型:</strong> ${getTypeText(incident.type)}</p>
+                        <p><strong>级别:</strong> <span class="badge bg-${getLevelColor(incident.level)}">${getLevelText(incident.level)}</span></p>
+                        <p><strong>位置:</strong> ${incident.location}</p>
+                        <p><strong>状态:</strong> <span class="badge bg-${getStatusColor(incident.status)}">${getStatusText(incident.status)}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>时间信息</h6>
+                        <p><strong>发生时间:</strong> ${formatDateTime(incident.occurred_at)}</p>
+                        <p><strong>创建时间:</strong> ${formatDateTime(incident.created_at)}</p>
+                        ${incident.resolved_at ? `<p><strong>解决时间:</strong> ${formatDateTime(incident.resolved_at)}</p>` : ''}
+                        <p><strong>来源:</strong> ${getSourceText(incident.source)}</p>
+                    </div>
+                </div>
+            `;
+
+            // 根据状态显示/隐藏按钮
+            const assignBtn = document.getElementById('assignBtn');
+            const resolveBtn = document.getElementById('resolveBtn');
+            
+            assignBtn.style.display = incident.status === 'PENDING' ? 'inline-block' : 'none';
+            resolveBtn.style.display = incident.status === 'IN_PROGRESS' ? 'inline-block' : 'none';
+
+            new bootstrap.Modal(document.getElementById('incidentDetailModal')).show();
+        }
+
+        // 分配事件
+        async function assignIncident(incidentId = currentIncidentId) {
+            if (!incidentId) return;
+
+            try {
+                const response = await fetch(`/api/incidents/${incidentId}/assign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('事件已分配！');
+                    loadIncidents();
+                    bootstrap.Modal.getInstance(document.getElementById('incidentDetailModal')).hide();
+                } else {
+                    alert('分配事件失败，请重试');
+                }
+            } catch (error) {
+                console.error('分配事件失败:', error);
+                alert('分配事件失败，请重试');
+            }
+        }
+
+        // 解决事件
+        async function resolveIncident(incidentId = currentIncidentId) {
+            if (!incidentId) return;
+
+            try {
+                const response = await fetch(`/api/incidents/${incidentId}/resolve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('事件已解决！');
+                    loadIncidents();
+                    bootstrap.Modal.getInstance(document.getElementById('incidentDetailModal')).hide();
+                } else {
+                    alert('解决事件失败，请重试');
+                }
+            } catch (error) {
+                console.error('解决事件失败:', error);
+                alert('解决事件失败，请重试');
+            }
+        }
+
+        // 刷新事件列表
+        function refreshIncidents() {
+            loadIncidents();
+        }
+
+        // 过滤事件
+        function filterIncidents(status) {
+            if (status === 'all') {
+                displayIncidents(allIncidents);
+            } else {
+                const filtered = allIncidents.filter(incident => incident.status === status);
+                displayIncidents(filtered);
+            }
+        }
+
+        // 辅助函数
+        function getTypeText(type) {
+            const types = {
+                'TRAFFIC_ACCIDENT': '交通事故',
+                'CONGESTION': '交通拥堵',
+                'ROAD_MAINTENANCE': '道路维护',
+                'SIGNAL_FAULT': '信号灯故障',
+                'OTHER': '其他'
+            };
+            return types[type] || type;
+        }
+
+        function getLevelText(level) {
+            const levels = {
+                'LOW': '低',
+                'MEDIUM': '中',
+                'HIGH': '高',
+                'CRITICAL': '紧急'
+            };
+            return levels[level] || level;
+        }
+
+        function getLevelColor(level) {
+            const colors = {
+                'LOW': 'success',
+                'MEDIUM': 'warning',
+                'HIGH': 'danger',
+                'CRITICAL': 'dark'
+            };
+            return colors[level] || 'secondary';
+        }
+
+        function getStatusText(status) {
+            const statuses = {
+                'PENDING': '待处理',
+                'IN_PROGRESS': '处理中',
+                'RESOLVED': '已解决'
+            };
+            return statuses[status] || status;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'PENDING': 'warning',
+                'IN_PROGRESS': 'info',
+                'RESOLVED': 'success'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        function getSourceText(source) {
+            const sources = {
+                'MANUAL': '手动上报',
+                'AI_DETECTION': 'AI检测',
+                'SENSOR': '传感器',
+                'CITIZEN': '市民举报'
+            };
+            return sources[source] || source;
+        }
+
+        function formatDateTime(dateTime) {
+            if (!dateTime) return '-';
+            const date = new Date(dateTime);
+            return date.toLocaleString('zh-CN');
+        }
+    </script>
+</body>
+</html>

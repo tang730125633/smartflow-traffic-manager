@@ -1,0 +1,71 @@
+server:
+  port: 8005
+
+spring:
+  application:
+    name: ai-detection-service
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/smartflow_ai?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+  
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ai-detection-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# AI Detection Configuration
+ai:
+  detection:
+    model-path: /app/models/yolov8n.pt
+    accident-model-path: /app/models/accident_detection.pt
+    confidence-threshold: 0.85
+    accident-cooldown: 900  # 15 minutes in seconds
+    video:
+      url: "https://www.youtube.com/watch?v=F5Q5ViU8QR0"
+      region-points:
+        - [0.1, 0.55]
+        - [0.25, 0.8]
+        - [0.99, 0.75]
+        - [0.99, 0.5]
+
+logging:
+  level:
+    com.smartflow.ai: DEBUG
+    org.springframework.kafka: INFO
+

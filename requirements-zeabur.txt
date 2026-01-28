@@ -1,0 +1,18 @@
+# Zeabur 简化版依赖 - 只包含核心功能
+# 移除了 AI 模型依赖，使用 mock 数据
+
+# Web框架
+flask>=2.3.0
+flask-cors>=4.0.0
+werkzeug>=2.3.0
+
+# 数据处理
+numpy>=1.24.0
+pandas>=2.0.0
+
+# 图像处理（基础）
+Pillow>=10.0.0
+
+# 工具库
+requests>=2.31.0
+PyYAML>=6.0

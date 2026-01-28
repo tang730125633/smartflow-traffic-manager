@@ -1,0 +1,219 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: smartflow-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: smartflow_traffic
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - smartflow-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: smartflow-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - smartflow-network
+
+  # Apache Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: smartflow-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - smartflow-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: smartflow-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - smartflow-network
+
+  # Eureka Server
+  eureka-server:
+    build: ./spring-cloud-services/eureka-server
+    container_name: smartflow-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - smartflow-network
+
+  # Gateway Service
+  gateway-service:
+    build: ./spring-cloud-services/gateway-service
+    container_name: smartflow-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - smartflow-network
+
+  # Auth Service
+  auth-service:
+    build: ./spring-cloud-services/auth-service
+    container_name: smartflow-auth
+    ports:
+      - "8001:8001"
+    depends_on:
+      - eureka-server
+      - mysql
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/smartflow_auth?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - smartflow-network
+
+  # Traffic Service
+  traffic-service:
+    build: ./spring-cloud-services/traffic-service
+    container_name: smartflow-traffic
+    ports:
+      - "8002:8002"
+    depends_on:
+      - eureka-server
+      - mysql
+      - redis
+      - kafka
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/smartflow_traffic?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - ./models:/app/models
+      - ./videos:/app/videos
+    networks:
+      - smartflow-network
+
+  # Analysis Service
+  analysis-service:
+    build: ./spring-cloud-services/analysis-service
+    container_name: smartflow-analysis
+    ports:
+      - "8003:8003"
+    depends_on:
+      - eureka-server
+      - mysql
+      - kafka
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/smartflow_analysis?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - smartflow-network
+
+  # Notification Service
+  notification-service:
+    build: ./spring-cloud-services/notification-service
+    container_name: smartflow-notification
+    ports:
+      - "8004:8004"
+    depends_on:
+      - eureka-server
+      - mysql
+      - kafka
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/smartflow_notification?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - smartflow-network
+
+  # AI Detection Service
+  ai-detection-service:
+    build: ./spring-cloud-services/ai-detection-service
+    container_name: smartflow-ai-detection
+    ports:
+      - "8005:8005"
+    depends_on:
+      - eureka-server
+      - mysql
+      - redis
+      - kafka
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/smartflow_ai?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - ./models:/app/models
+      - ./videos:/app/videos
+    networks:
+      - smartflow-network
+
+  # Incident Service
+  incident-service:
+    build: ./spring-cloud-services/incident-service
+    container_name: smartflow-incident
+    ports:
+      - "8006:8006"
+    depends_on:
+      - eureka-server
+      - mysql
+      - kafka
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/smartflow_incident?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - smartflow-network
+
+  # Frontend Service
+  frontend-service:
+    build: ./spring-cloud-services/frontend-service
+    container_name: smartflow-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - smartflow-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  smartflow-network:
+    driver: bridge
+

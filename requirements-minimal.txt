@@ -1,0 +1,27 @@
+# 最小化依赖 - 用于快速启动和演示
+# 如果需要完整功能（包括 AI 检测），请使用 requirements.txt
+
+# Web框架（核心，必须）
+flask>=2.3.0
+flask-cors>=4.0.0
+werkzeug>=2.3.0
+
+# 数据处理（核心，必须）
+numpy>=1.24.0
+pandas>=2.0.0
+
+# 工具库（核心，必须）
+requests>=2.31.0
+PyYAML>=6.0
+psutil>=5.9.0
+
+# 可视化（可选，但建议安装）
+matplotlib>=3.7.0
+
+# 注意：以下功能在最小化模式下不可用：
+# - AI 目标检测（需要 tensorflow、ultralytics、opencv-python）
+# - 视频处理（需要 youtube-dl、pafy）
+# - 高级数据分析（需要 scipy、seaborn）
+
+# 如果需要这些功能，请运行：
+# pip install -r requirements.txt

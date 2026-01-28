@@ -1,0 +1,103 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║              SmartFlow - 快速开始指南                          ║
+║                                                               ║
+║                     ⏱️ 预计耗时：1小时                          ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+📌 第一步：安装 5 个必备软件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+软件名称           下载地址（复制到浏览器打开）                    安装要点
+────────────────────────────────────────────────────────────
+1. Java 11        https://repo.huaweicloud.com/java/jdk/          安装后配置环境变量
+                  11.0.2+9/jdk-11.0.2_windows-x64_bin.exe         JAVA_HOME
+
+2. Maven 3.9      https://dlcdn.apache.org/maven/maven-3/         解压到 C:\Program Files\Apache\
+                  3.9.6/binaries/apache-maven-3.9.6-bin.zip       修改 settings.xml 添加阿里云镜像
+
+3. MySQL 8.0      https://mirrors.tuna.tsinghua.edu.cn/mysql/     密码必须设为：root
+                  downloads/MySQL-8.0/mysql-8.0.36-winx64.msi
+
+4. Redis          https://github.com/tporadowski/redis/releases/  勾选 "Add to PATH"
+                  download/v5.0.14.1/Redis-x64-5.0.14.1.msi
+
+5. Python 3.10    https://npm.taobao.org/mirrors/python/          勾选 "Add Python to PATH"
+                  3.10.11/python-3.10.11-amd64.exe                然后运行：pip config set global.index-url
+                                                                  https://pypi.tuna.tsinghua.edu.cn/simple
+
+⚠️ 每个软件都有验证命令，安装后务必验证！详见《零基础运行教程.txt》
+
+
+📌 第二步：初始化项目
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 打开 cmd（Win+R，输入 cmd）
+
+2. 进入项目目录：
+   cd Desktop\SpringCloud-main
+
+3. 创建数据库：
+   mysql -u root -proot < sql\init.sql
+
+4. 安装 Python 依赖：
+   pip install -r requirements.txt
+
+
+📌 第三步：启动项目
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 双击运行：一键启动.bat
+
+2. 选择启动模式：输入 1（最小模式，适合新手）
+
+3. 等待 5-10 分钟，直到所有服务启动完成
+
+4. 打开浏览器访问：
+   - http://localhost:8761  （Eureka 控制台）
+   - http://localhost:8080  （系统主界面）
+
+
+📌 验证安装
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+打开 cmd，依次输入以下命令，确保都有正确输出：
+
+✓ java -version        应该显示：java version "11.0.2"
+✓ mvn -version         应该显示：Apache Maven 3.9.6
+✓ mysql -u root -p     输入密码 root 后能登录
+✓ redis-cli ping       应该返回：PONG
+✓ python --version     应该显示：Python 3.10.11
+
+
+📌 常见问题
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+问题                        解决方法
+────────────────────────────────────────────────────
+端口被占用                  netstat -ano | findstr :8080
+                           taskkill /PID <进程ID> /F
+
+Maven 下载很慢              检查是否配置了阿里云镜像
+
+MySQL 连接失败              确认密码是 root
+
+环境变量未生效              重启电脑，或注销后重新登录
+
+
+📌 需要帮助？
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 双击运行：check-services.bat 检查环境
+
+2. 阅读详细教程：【必读】零基础运行教程.txt
+
+3. 查看 Windows 运行指南：README-Windows.md
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 提示：第一次启动会很慢（20-40分钟），主要是下载依赖包。
+        之后启动只需要 2-5 分钟。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

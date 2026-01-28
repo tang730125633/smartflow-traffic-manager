@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <title>仪表板 - 智慧交通管理系统</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Jost:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="static/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="static/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="static/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="static/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="static/style/style.css" rel="stylesheet">
+    
+    <!-- 演示视频样式 -->
+    <style>
+      .demo-video-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 400px;
+        border-radius: 8px;
+        padding: 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .demo-video-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      
+      .demo-video-header h6 {
+        margin: 0;
+        font-weight: 600;
+      }
+      
+      .demo-video-content {
+        height: calc(100% - 60px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      .traffic-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+      }
+      
+      .stat-item {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .stat-item i {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        display: block;
+      }
+      
+      .stat-item strong {
+        font-size: 1.2rem;
+        color: #fff;
+      }
+      
+      .traffic-visualization {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .road-lane {
+        width: 100%;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+      }
+      
+      .vehicle {
+        position: absolute;
+        font-size: 2rem;
+        animation: moveVehicle 3s linear infinite;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      
+      .vehicle:nth-child(1) {
+        animation-delay: 0s;
+        left: -50px;
+      }
+      
+      .vehicle:nth-child(2) {
+        animation-delay: 1s;
+        left: -50px;
+      }
+      
+      .vehicle:nth-child(3) {
+        animation-delay: 2s;
+        left: -50px;
+      }
+      
+      @keyframes moveVehicle {
+        0% {
+          left: -50px;
+        }
+        100% {
+          left: calc(100% + 50px);
+        }
+      }
+      
+      .demo-video-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+        pointer-events: none;
+      }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="fixed-top ">
+      <div class="container d-flex align-items-center">
+  
+        <h1 class="logo me-auto">智慧交通管理系统</h1>
+  
+        <nav id="navbar" class="navbar">
+          <ul>
+            <li><a class="nav-link" href="/landing">首页</a></li>
+            <li><a class="nav-link active" href="/dashboard">仪表板</a></li>
+            <li><a class="nav-link" href="/incident_management">事件管理</a></li>
+            <li><a class="nav-link" href="/traffic_analysis">交通分析</a></li>
+            <li><a class="nav-link" href="/team">团队</a></li>
+            <li><a class="nav-link" href="/contact">联系我们</a></li>
+            <li class="nav-item dropdown pe-3">
+  
+              <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+                <span class="d-none d-md-block dropdown-toggle ps-2">账户</span>
+              </a><!-- End Profile Iamge Icon -->
+  
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                <li class="dropdown-header">
+                  <h6>用户名: {{g.user['username']}}</h6>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+  
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="/logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>退出登录</span>
+                  </a>
+                </li>
+  
+              </ul><!-- End Profile Dropdown Items -->
+            </li><!-- End Profile Nav -->
+          </ul>
+          <i class="bi bi-list mobile-nav-toggle"></i>
+        </nav><!-- .navbar -->
+  
+      </div>
+    </header><!-- End Header -->
+  
+    <main id="main" class="main">
+  
+      <div class="pagetitle">
+        <h1>仪表板</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="landing.html">首页</a></li>
+            <li class="breadcrumb-item active">仪表板</li>
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->
+  
+      <section class="section dashboard">
+        <div class="row">
+          <!-- Traffic Feed -->
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">交通实况 <span>| 今日</span></h5>
+                
+                <!-- 视频切换按钮 -->
+                <div class="mb-3">
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-info btn-sm active" onclick="switchToDemoVideo()">
+                      演示视频
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm" onclick="switchToLocalVideo()">
+                      本地视频
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchVideo('jDDaplaOz7Q')">
+                      监控点1
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchVideo('KYo5jDnk0ls')">
+                      监控点2
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchVideo('C5bLwXkPH1M')">
+                      监控点3
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchVideo('F5Q5ViU8QR0')">
+                      监控点4
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchVideo('M7lc1UVf-VE')">
+                      监控点5
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="traffic-feed">
+                  <div id="demoVideo" style="display: block;">
+                    <div class="demo-video-container">
+                      <div class="demo-video-header">
+                        <h6><i class="bi bi-camera-video"></i> 交通监控演示</h6>
+                        <span class="badge bg-success">实时数据</span>
+                      </div>
+                      <div class="demo-video-content">
+                        <div class="traffic-stats">
+                          <div class="stat-item">
+                            <i class="bi bi-car-front"></i>
+                            <span>车辆: <strong id="demoCarCount">0</strong></span>
+                          </div>
+                          <div class="stat-item">
+                            <i class="bi bi-person-walking"></i>
+                            <span>行人: <strong id="demoPedestrianCount">0</strong></span>
+                          </div>
+                          <div class="stat-item">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>平均速度: <strong id="demoAvgSpeed">0</strong> km/h</span>
+                          </div>
+                        </div>
+                        <div class="traffic-visualization">
+                          <div class="road-lane">
+                            <div class="vehicle" id="vehicle1">🚗</div>
+                            <div class="vehicle" id="vehicle2">🚙</div>
+                            <div class="vehicle" id="vehicle3">🚌</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <iframe id="trafficVideo" src="https://www.youtube.com/embed/{{g['video_id']}}?autoplay=1&controls=1&rel=0&modestbranding=1" style="display: none;">
+                  </iframe>
+                </div>
+                
+                <!-- 视频状态提示 -->
+                <div class="mt-2">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle"></i>
+                    如果视频无法播放，请尝试切换其他视频源
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div> <!-- End Traffic Feed -->
+        </div>
+        
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="row">
+                <!-- Sales Card -->
+              <div class="col-xxl-4 col-xl-4">
+                <div class="card info-card sales-card">
+                  <div class="card-body">
+                    <h5 class="card-title">交通流量 <span>| 今日</span></h5>
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <ion-icon name="car-outline"></ion-icon>
+                      </div>
+                      <div class="ps-3">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Sales Card -->
+  
+              <!-- Revenue Card -->
+              <div class="col-xxl-4 col-xl-4">
+                <div class="card info-card revenue-card">
+                  <div class="card-body">
+                    <h5 class="card-title">车辆统计 <span>| 今日</span></h5>
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <ion-icon name="stats-chart-outline"></ion-icon>
+                      </div>
+                      <div class="ps-3">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Revenue Card -->
+  
+              <!-- Congestion Card -->
+              <div class="col-xxl-4 col-xl-4">
+                <div class="card info-card customers-card">
+                  <div class="card-body">
+                    <h5 class="card-title">拥堵状况 <span>| 今日</span></h5>
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                      </div>
+                      <div class="ps-3">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Customers Card -->
+            
+              <script>
+                const loadCards = async function() {
+                  const cardElements = document.getElementsByClassName('ps-3');
+
+                  const cardData = await fetch('/get_div_data').then((data)=>data.json());
+                  
+                  for(i=0; i<2; i++) {
+                    cardElements[i].innerHTML = `<h6>${cardData[i]['amount']}</h6>
+                    <span class="text-danger small pt-1 fw-bold">${Math.abs(cardData[i]['percentage'])}%</span> <span class="text-muted small pt-2 ps-1">${cardData[i]['change']}</span>`;
+                  }
+
+                  cardElements[2].innerHTML = `<h6>${cardData[2]['congestion-level']}</h6>
+                    <span class="text-danger small pt-1 fw-bold"><span class="text-muted small pt-2 ps-1">${cardData[2]['change']}</span>`;
+                }
+
+                document.addEventListener('DOMContentLoaded', loadCards);
+              </script>
+            </div>
+          </div>
+        </div>
+  
+        <div class="row">
+            <!-- Left side columns -->
+            <div class="col-lg">
+              <!-- Reports -->
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">交通流量报告 <span>| 今日</span></h5>
+  
+                    <!-- Line Chart -->
+                    <div id="lineChart"></div>
+                    <script>
+                      const plotLineChart = async function () {
+                        // Fetch data from the API
+                        const fetchedData = await fetch("/line_chart_data").then((data) =>
+                          data.json()
+                        );
+                      
+                        const series_data = fetchedData[0]["series_data"];
+                        const categories = fetchedData[0]["categories"];
+                      
+                        new ApexCharts(document.querySelector("#lineChart"), {
+                          series: series_data,
+                          chart: {
+                            height: 350,
+                            type: "area",
+                            toolbar: {
+                              show: true,
+                            },
+                          },
+                          markers: {
+                            size: 4,
+                          },
+                          colors: [
+                            "#4263eb",
+                            "#69db7c",
+                            "#ffd43b",
+                            "#fa5252",
+                            "#4dabf7",
+                            "#087f5b",
+                            "#555555",
+                          ],
+                          fill: {
+                            type: "gradient",
+                            gradient: {
+                              shadeIntensity: 1,
+                              opacityFrom: 0.3,
+                              opacityTo: 0.4,
+                              stops: [0, 90, 100],
+                            },
+                          },
+                          dataLabels: {
+                            enabled: false,
+                          },
+                          stroke: {
+                            curve: "smooth",
+                            width: 2,
+                          },
+                          xaxis: {
+                            type: "time",
+                            categories: categories,
+                          },
+                          tooltip: {
+                            x: {
+                              format: "dd/MM/yy HH:mm",
+                            },
+                          },
+                        }).render();
+                      };
+                      
+                      document.addEventListener('DOMContentLoaded', plotLineChart);
+                    </script>
+                    <!-- End Line Chart -->
+  
+                  </div>
+                </div>
+              </div><!-- End Reports -->
+              
+        </div>
+  
+        <div class="row">
+          <div class="col-lg-6">
+            <!-- Budget Report -->
+            <div class="card">
+              <div class="card-body pb-0">
+                <h5 class="card-title">速度与数量分析 <span>| 今日</span></h5>
+  
+                <div id="angularChart" style="min-height: 400px;" class="echart"></div>
+  
+                <script>
+                  const plotAngularChart = async function() {
+                    // Fetch data from the API
+                    const data = await fetch('/angular_chart_data').then((data)=> data.json());
+
+                    const angularChart = echarts.init(document.querySelector("#angularChart")).setOption({
+                      legend: {
+                        data: ['平均速度', '总数量']
+                      },
+                      radar: {
+                        // shape: 'circle',
+                        indicator: [{
+                          name: '行人',
+                          max: 30
+                        },
+                        {
+                          name: '汽车',
+                          max: 100
+                        },
+                        {
+                          name: '公交车',
+                          max: 90
+                        },
+                        {
+                          name: '自行车',
+                          max: 30
+                        },
+                        {
+                          name: '摩托车',
+                          max: 30
+                        },
+                        {
+                          name: '卡车',
+                          max: 100
+                        }
+                        ]
+                      },
+                      series: [{
+                        name: '平均速度 vs 总数量',
+                        type: 'radar',
+                        data: data
+                      }]
+                    });
+                  }
+  
+                  document.addEventListener("DOMContentLoaded", plotAngularChart);
+                </script>
+  
+              </div>
+            </div><!-- End Budget Report -->
+          </div>
+  
+          <div class="col-lg-6">
+            <!-- Website Traffic -->
+            <div class="card">
+               <div class="card-body pb-0">
+                <h5 class="card-title">交通流量分析 <span>| 今日</span></h5>
+                <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
+  
+                <script>
+                  const plotPieChart = async function() {
+                    // Fetch data from the API
+                    const pie_chart_data = await fetch('/pie_chart_data').then((data)=> data.json())
+  
+                    echarts.init(document.querySelector("#trafficChart")).setOption({
+                      tooltip: {
+                        trigger: 'item'
+                      },
+                      legend: {
+                        top: '5%',
+                        left: 'center'
+                      },
+                      series: [{
+                        name: '来源分析',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                          show: false,
+                          position: 'center'
+                        },
+                        emphasis: {
+                          label: {
+                            show: true,
+                            fontSize: '18',
+                            fontWeight: 'bold'
+                          }
+                        },
+                        labelLine: {
+                          show: false
+                        },
+                        data: pie_chart_data
+                      }]
+                    });
+                  }
+                  
+                  document.addEventListener("DOMContentLoaded", plotPieChart);
+                </script>
+  
+              </div>
+            </div><!-- End Website Traffic -->
+          </div>
+        </div>
+  
+        <!-- Highest Traffic Volume -->
+        <div class="col-12">
+          <div class="card top-selling overflow-auto">
+  
+            <div class="card-body pb-0">
+              <h5 class="card-title">高峰交通时段 <span>| 今日</span></h5>
+  
+              <table class="table table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">时间</th>
+                    <th scope="col">交通流量</th>
+                    <th scope="col">平均速度</th>
+                    <th scope="col">最大车辆数</th>
+                  </tr>
+                </thead>
+                <tbody id="highest-traffic">
+                  <script>
+                    const loadHighestTraffic = async function() {
+                      const tableBody = document.getElementById('highest-traffic');
+                      const data = await fetch('/highest_traffic').then((data)=> data.json())
+                      
+                      data.forEach((elm) => {
+                        tableBody.innerHTML += `
+                        <tr>
+                          <th scope="row">${elm['time']}:00</th>
+                          <td>${elm['volume']}</td>
+                          <td>${elm['speed']}</td>
+                          <td>${elm['highest-vehicle']}</td>
+                        </tr>
+                        `
+                      });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', loadHighestTraffic);
+                  </script>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- End Top Selling -->
+  
+        <!-- Recent Accidents -->
+        <div class="col-12">
+          <div class="card recent-sales overflow-auto">
+            <div class="card-body">
+              <h5 class="card-title">最近事故 <span>| 今日</span></h5>
+  
+              <table class="table table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">编号</th>
+                    <th scope="col">时间</th>
+                    <th scope="col">涉及车辆</th>
+                    <th scope="col">严重程度</th>
+                    <th scope="col">状态</th>
+                  </tr>
+                </thead>
+                <tbody id="accident-table">
+                  <script>
+                    const loadAccidentTable = async function() {
+                      const elm = document.getElementById('accident-table');
+
+                      const accidentData = await fetch('/get_accident_data').then((data)=> data.json());
+
+                      accidentData.forEach((accident)=> {
+                        elm.innerHTML += `
+                        <td scope="row"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal${accident['id']}">${accident['id']}</button></td>
+                        <td>${accident['time']}</td>
+                        <td>${accident['involved']}</td>
+                        <td><span class="badge bg-danger">严重</span></td>
+                        <td><span class="badge bg-${accident[
+                          'stat']=="Resolved" ? "success" : "warning"}">${accident['stat']}</span></td>
+                        `
+                      });
+                    };
+
+                    document.addEventListener('DOMContentLoaded', loadAccidentTable);
+                  </script>
+                </tbody>
+              </table>
+              
+              </div>
+            </div><!-- End Recent Accidents -->
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal11" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel11" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">事故详情</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    ...
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">保存更改</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        </div>
+  
+      </div>
+
+    </section>
+  
+    </main><!-- End #main -->
+  
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+      <div class="copyright">
+        &copy; 版权所有 <strong><span>智慧交通管理系统</span></strong>. 保留所有权利
+      </div>
+      <div class="credits">
+        由 <a href="https://www.linkedin.com/in/arup-jana-main/">Arup</a> 和 <a href="https://bootstrapmade.com/">Bootstrapmade</a> 设计
+      </div>
+    </footer><!-- End Footer -->
+  
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
+  
+  </body>
+
+  <!-- Vendor JS Files -->
+  <script src="static/vendor/apexcharts/apexcharts.min.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/vendor/chart.js/chart.umd.js"></script>
+  <script src="static/vendor/echarts/echarts.min.js"></script>
+  <script src="static/vendor/quill/quill.min.js"></script>
+  <script src="static/vendor/simple-datatables/simple-datatables.js"></script>
+  <script src="static/vendor/tinymce/tinymce.min.js"></script>
+  <script src="static/vendor/php-email-form/validate.js"></script>
+  
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src=
+"https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+  </script>
+  <script src="//raw.github.com/botmonster/jquery-bootpag/master/lib/jquery.bootpag.min.js"></script>
+  
+  <!-- Template Main JS File -->
+  <script src="static/js/main.js"></script>
+  
+  <!-- 视频切换功能 -->
+  <script>
+    function switchVideo(videoId) {
+      // 隐藏演示视频，显示YouTube视频
+      document.getElementById('demoVideo').style.display = 'none';
+      document.getElementById('trafficVideo').style.display = 'block';
+      
+      const iframe = document.getElementById('trafficVideo');
+      const newSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+      
+      // 更新iframe源
+      iframe.src = newSrc;
+      
+      // 更新按钮状态
+      const buttons = document.querySelectorAll('.btn-group .btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // 显示切换提示 - 使用更友好的描述
+      const videoNames = {
+        'jDDaplaOz7Q': '高速公路交通监控',
+        'KYo5jDnk0ls': '城市交通监控', 
+        'C5bLwXkPH1M': '交通路口监控',
+        'F5Q5ViU8QR0': '交通流量监控',
+        'M7lc1UVf-VE': '交通状况监控'
+      };
+      const videoName = videoNames[videoId] || `监控点视频: ${videoId}`;
+      showVideoSwitchNotification(videoName);
+    }
+    
+    function switchToLocalVideo() {
+      const iframe = document.getElementById('trafficVideo');
+      const videoContainer = iframe.parentElement;
+      
+      // 替换为本地视频播放器
+      videoContainer.innerHTML = `
+        <video id="localVideo" width="100%" height="400" controls autoplay loop muted>
+          <source src="/static/videos/traffic_demo.mp4" type="video/mp4">
+          <source src="/static/videos/traffic_demo.webm" type="video/webm">
+          您的浏览器不支持视频播放。
+        </video>
+        <div class="mt-2">
+          <small class="text-muted">
+            <i class="bi bi-info-circle"></i>
+            本地演示视频 - 模拟交通监控画面
+          </small>
+        </div>
+      `;
+      
+      // 更新按钮状态
+      const buttons = document.querySelectorAll('.btn-group .btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      showVideoSwitchNotification('本地视频');
+    }
+    
+    function switchToDemoVideo() {
+      // 显示演示视频，隐藏YouTube视频
+      document.getElementById('demoVideo').style.display = 'block';
+      document.getElementById('trafficVideo').style.display = 'none';
+      
+      // 启动演示数据动画
+      startDemoAnimation();
+      
+      // 更新按钮状态
+      const buttons = document.querySelectorAll('.btn-group .btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      showVideoSwitchNotification('演示视频');
+    }
+    
+    function startDemoAnimation() {
+      const elements = {
+        carCount: document.getElementById('demoCarCount'),
+        pedestrianCount: document.getElementById('demoPedestrianCount'),
+        avgSpeed: document.getElementById('demoAvgSpeed')
+      };
+      
+      function animateValue(element, start, end, duration) {
+        if (!element) return;
+        const range = end - start;
+        const current = start;
+        const increment = end > start ? 1 : -1;
+        const stepTime = Math.abs(Math.floor(duration / range));
+        const timer = setInterval(() => {
+          current += increment;
+          element.textContent = current;
+          if (current == end) {
+            clearInterval(timer);
+          }
+        }, stepTime);
+      }
+      
+      // 随机生成演示数据
+      setInterval(() => {
+        const cars = Math.floor(Math.random() * 50) + 20;
+        const pedestrians = Math.floor(Math.random() * 30) + 10;
+        const speed = Math.floor(Math.random() * 30) + 25; // 25-55 km/h
+        
+        animateValue(elements.carCount, parseInt(elements.carCount?.textContent || 0), cars, 500);
+        animateValue(elements.pedestrianCount, parseInt(elements.pedestrianCount?.textContent || 0), pedestrians, 500);
+        animateValue(elements.avgSpeed, parseInt(elements.avgSpeed?.textContent || 0), speed, 500);
+      }, 3000);
+    }
+    
+    function showVideoSwitchNotification(videoId) {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.className = 'alert alert-info alert-dismissible fade show position-fixed';
+      notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      notification.innerHTML = `
+        <i class="bi bi-play-circle"></i>
+        正在切换到视频源: ${videoId}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // 3秒后自动移除
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
+    }
+    
+    // 页面加载完成后设置默认按钮状态并启动演示视频
+    document.addEventListener('DOMContentLoaded', function() {
+      // 默认启动演示视频
+      startDemoAnimation();
+      
+      // 设置演示视频按钮为激活状态
+      const demoButton = document.querySelector('button[onclick="switchToDemoVideo()"]');
+      if (demoButton) {
+        demoButton.classList.add('active');
+      }
+    });
+  </script>
+
+</html>

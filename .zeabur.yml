@@ -1,0 +1,12 @@
+# Zeabur 部署配置
+
+apps:
+  - name: smartflow-traffic
+    type: python
+    buildCommand: pip install -r requirements-zeabur.txt
+    startCommand: python run_app.py
+    env:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 8080
