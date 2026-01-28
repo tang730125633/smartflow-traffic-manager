@@ -1,0 +1,55 @@
+========================================================
+    SmartFlow Traffic Manager - User Guide
+========================================================
+
+QUICK START (2 Steps):
+----------------------
+
+Step 1: Double-click "RUN-THIS.bat"
+  - This will install everything automatically
+  - Wait for the application to start
+  - First run takes 5-10 minutes
+
+Step 2: Open your browser
+  - Go to: http://localhost:8080
+  - Click "Register" to create an account
+  - Login with your account
+
+
+FEATURES:
+---------
+- Real-time traffic dashboard
+- Traffic analysis and statistics
+- Incident management
+- Signal control
+- Data visualization
+
+
+SYSTEM REQUIREMENTS:
+--------------------
+- Windows 7, 8, 10, or 11
+- Python 3.8 or higher (will auto-install prompt if missing)
+- Internet connection (for first-time setup)
+
+
+TROUBLESHOOTING:
+----------------
+
+Q: Application won't start?
+A: Make sure Python is installed. The script will prompt you.
+
+Q: Browser shows "Connection refused"?
+A: Wait 1-2 minutes for the server to fully start.
+
+Q: Data not showing?
+A: The system uses mock/simulated data. Data will appear
+   automatically after login.
+
+
+SUPPORT:
+--------
+For technical support, contact:
+[Your Contact Information]
+
+
+========================================================
